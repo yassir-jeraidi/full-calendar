@@ -20,7 +20,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import { useCalendar } from "@/features/calendar/contexts/calendar-context";
+import { MAX_SCROLL_HOUR, MIN_SCROLL_HOUR, useCalendar } from "@/features/calendar/contexts/calendar-context";
+import { Input } from "@/components/ui/input";
+import { ChangeEvent } from "react";
 
 export function Settings() {
   const {
@@ -28,6 +30,8 @@ export function Settings() {
     setBadgeVariant,
     use24HourFormat,
     toggleTimeFormat,
+    startOfDayHour,
+    setStartOfDayHour,
     agendaModeGroupBy,
     setAgendaModeGroupBy,
   } = useCalendar();
@@ -35,6 +39,13 @@ export function Settings() {
 
   const isDarkMode = theme === "dark";
   const isDotVariant = badgeVariant === "dot";
+
+  const onChangeStartOfDay = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.target.value, 10);
+    if (!isNaN(val) && val >= MIN_SCROLL_HOUR && val <= MAX_SCROLL_HOUR) {
+      setStartOfDayHour(val);
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -136,6 +147,20 @@ export function Settings() {
                 onCheckedChange={toggleTimeFormat}
               />
             </DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            Days start at
+            <DropdownMenuShortcut>
+              <Input
+                type="number"
+                value={startOfDayHour}
+                max={MAX_SCROLL_HOUR}
+                min={MIN_SCROLL_HOUR}
+                onChange={onChangeStartOfDay}
+                className="w-16"
+              />
+            </DropdownMenuShortcut>
+            h
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

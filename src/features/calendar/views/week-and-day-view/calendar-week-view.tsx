@@ -9,7 +9,7 @@ import {
 import {useCalendar} from "@/features/calendar/contexts/calendar-context";
 import {AddEditEventDialog} from "@/features/calendar/dialogs/add-edit-event-dialog";
 import {DroppableArea} from "@/features/calendar/dnd/droppable-area";
-import {groupEvents} from "@/features/calendar/helpers";
+import {groupEvents, HOUR_HEIGHT_PX, useScrollPosition} from "@/features/calendar/helpers";
 import type {IEvent} from "@/features/calendar/interfaces";
 import {CalendarTimeline} from "@/features/calendar/views/week-and-day-view/calendar-time-line";
 import {RenderGroupedEvents} from "@/features/calendar/views/week-and-day-view/render-grouped-events";
@@ -25,6 +25,7 @@ interface IProps {
 
 export function CalendarWeekView({singleDayEvents, multiDayEvents}: IProps) {
     const {selectedDate, use24HourFormat} = useCalendar();
+    const scrollPosition = useScrollPosition();
 
     const weekStart = startOfWeek(selectedDate);
     const weekDays = Array.from({length: 7}, (_, i) => addDays(weekStart, i));
@@ -97,7 +98,7 @@ export function CalendarWeekView({singleDayEvents, multiDayEvents}: IProps) {
 
                 </div>
 
-                <ScrollArea className="h-[736px]" type="always">
+                <ScrollArea className="h-[736px]" scrollPosition={scrollPosition} type="always">
                     <div className="flex">
                         {/* Hours column */}
                         <motion.div className="relative w-18" variants={staggerContainer}>
@@ -105,7 +106,7 @@ export function CalendarWeekView({singleDayEvents, multiDayEvents}: IProps) {
                                 <motion.div
                                     key={hour}
                                     className="relative"
-                                    style={{height: "96px"}}
+                                    style={{height: `${HOUR_HEIGHT_PX}px`}}
                                     initial={{opacity: 0, x: -20}}
                                     animate={{opacity: 1, x: 0}}
                                     transition={{delay: index * 0.02, ...transition}}
@@ -150,7 +151,7 @@ export function CalendarWeekView({singleDayEvents, multiDayEvents}: IProps) {
                                                 <motion.div
                                                     key={hour}
                                                     className="relative"
-                                                    style={{height: "96px"}}
+                                                    style={{height: `${HOUR_HEIGHT_PX}px`}}
                                                     initial={{opacity: 0}}
                                                     animate={{opacity: 1}}
                                                     transition={{delay: index * 0.01, ...transition}}

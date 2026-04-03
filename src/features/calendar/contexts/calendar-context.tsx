@@ -14,6 +14,8 @@ interface ICalendarContext {
   setAgendaModeGroupBy: (groupBy: "date" | "color") => void;
   use24HourFormat: boolean;
   toggleTimeFormat: () => void;
+  startOfDayHour: number;
+  setStartOfDayHour: (newVal: number) => void;
   setSelectedDate: (date: Date | undefined) => void;
   selectedUserId: IUser["id"] | "all";
   setSelectedUserId: (userId: IUser["id"] | "all") => void;
@@ -34,13 +36,20 @@ interface CalendarSettings {
   badgeVariant: "dot" | "colored";
   view: TCalendarView;
   use24HourFormat: boolean;
+  startOfDayHour: number;
   agendaModeGroupBy: "date" | "color";
 }
+
+export const MIN_SCROLL_HOUR = 0;
+// With a fixed calendar height, having 16h on top
+// of the frame allows to see the rest of the day
+export const MAX_SCROLL_HOUR = 16;
 
 const DEFAULT_SETTINGS: CalendarSettings = {
   badgeVariant: "colored",
   view: "day",
   use24HourFormat: true,
+  startOfDayHour: 8,
   agendaModeGroupBy: "date",
 };
 
@@ -59,14 +68,15 @@ export function CalendarProvider({
   view?: TCalendarView;
   badge?: "dot" | "colored";
 }) {
-  const [settings, setSettings] = useLocalStorage<CalendarSettings>(
-    "calendar-settings",
-    {
-      ...DEFAULT_SETTINGS,
-      badgeVariant: badge,
-      view: view,
-    },
-  );
+
+  const [rawSettings, setSettings] = useLocalStorage<Partial<CalendarSettings>>("calendar-settings", {});
+
+  const settings: CalendarSettings = {
+    ...DEFAULT_SETTINGS,
+    badgeVariant: badge,
+    view: view,
+    ...rawSettings,
+  };
 
   const [badgeVariant, setBadgeVariantState] = useState<"dot" | "colored">(
     settings.badgeVariant,
@@ -76,6 +86,9 @@ export function CalendarProvider({
   );
   const [use24HourFormat, setUse24HourFormatState] = useState<boolean>(
     settings.use24HourFormat,
+  );
+  const [startOfDayHour, setStartOfDayHourState] = useState<number>(
+    settings.startOfDayHour,
   );
   const [agendaModeGroupBy, setAgendaModeGroupByState] = useState<
     "date" | "color"
@@ -91,10 +104,10 @@ export function CalendarProvider({
   const [filteredEvents, setFilteredEvents] = useState<IEvent[]>(events || []);
 
   const updateSettings = (newPartialSettings: Partial<CalendarSettings>) => {
-    setSettings({
-      ...settings,
+    setSettings((prev) => ({
+      ...prev,
       ...newPartialSettings,
-    });
+    }));
   };
 
   const setBadgeVariant = (variant: "dot" | "colored") => {
@@ -112,6 +125,14 @@ export function CalendarProvider({
     setUse24HourFormatState(newValue);
     updateSettings({ use24HourFormat: newValue });
   };
+
+  const setStartOfDayHour = (newVal: number) => {
+    if (!isNaN(newVal) && newVal >= MIN_SCROLL_HOUR && newVal <= MAX_SCROLL_HOUR) {
+      setStartOfDayHourState(newVal);
+      updateSettings({ startOfDayHour: newVal });
+    }
+  };
+
 
   const setAgendaModeGroupBy = (groupBy: "date" | "color") => {
     setAgendaModeGroupByState(groupBy);
@@ -196,6 +217,8 @@ export function CalendarProvider({
     view: currentView,
     use24HourFormat,
     toggleTimeFormat,
+    startOfDayHour,
+    setStartOfDayHour,
     setView,
     agendaModeGroupBy,
     setAgendaModeGroupBy,
