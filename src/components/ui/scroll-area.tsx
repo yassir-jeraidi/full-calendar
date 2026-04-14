@@ -4,12 +4,23 @@ import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { useLayoutEffect, useRef } from "react";
 
 function ScrollArea({
 	className,
 	children,
+	scrollPosition = 0,
 	...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
+}: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
+	scrollPosition?: number;
+}) {
+	const viewportRef = useRef<HTMLDivElement>(null);
+
+	useLayoutEffect(() => {
+		if (viewportRef.current) {
+			viewportRef.current.scrollTop = scrollPosition;
+		}
+	}, [scrollPosition]);
 	return (
 		<ScrollAreaPrimitive.Root
 			data-slot="scroll-area"
@@ -17,6 +28,7 @@ function ScrollArea({
 			{...props}
 		>
 			<ScrollAreaPrimitive.Viewport
+				ref={viewportRef}
 				data-slot="scroll-area-viewport"
 				className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
 			>

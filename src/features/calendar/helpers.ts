@@ -36,6 +36,7 @@ import type {
 } from "@/features/calendar/types";
 
 const FORMAT_STRING = "MMM d, yyyy";
+export const HOUR_HEIGHT_PX = 96;
 
 export function rangeText(view: TCalendarView, date: Date): string {
 	let start: Date;
@@ -438,4 +439,9 @@ export const useGetEventsByMode = (events: IEvent[]) => {
 export const toCapitalize = (str: string): string => {
 	if (!str) return "";
 	return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+export const useScrollPosition = () => {
+	const { startOfDayHour } = useCalendar();
+	return startOfDayHour * HOUR_HEIGHT_PX;
 };

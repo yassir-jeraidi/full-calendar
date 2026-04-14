@@ -7,7 +7,7 @@ import { useCalendar } from "@/features/calendar/contexts/calendar-context";
 
 import { AddEditEventDialog } from "@/features/calendar/dialogs/add-edit-event-dialog";
 import { DroppableArea } from "@/features/calendar/dnd/droppable-area";
-import { groupEvents } from "@/features/calendar/helpers";
+import { groupEvents, HOUR_HEIGHT_PX, useScrollPosition } from "@/features/calendar/helpers";
 import type { IEvent } from "@/features/calendar/interfaces";
 import { CalendarTimeline } from "@/features/calendar/views/week-and-day-view/calendar-time-line";
 import { DayViewMultiDayEventsRow } from "@/features/calendar/views/week-and-day-view/day-view-multi-day-events-row";
@@ -21,6 +21,7 @@ interface IProps {
 export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
   const { selectedDate, setSelectedDate, users, use24HourFormat } =
     useCalendar();
+  const scrollPosition = useScrollPosition();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -98,13 +99,12 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
             </span>
           </div>
         </div>
-
-        <ScrollArea className="h-[800px]" type="always" ref={scrollAreaRef}>
+        <ScrollArea className="h-[800px]" type="always" ref={scrollAreaRef} scrollPosition={scrollPosition}>
           <div className="flex">
             {/* Hours column */}
             <div className="relative w-18">
               {hours.map((hour, index) => (
-                <div key={hour} className="relative" style={{ height: "96px" }}>
+                <div key={hour} className="relative" style={{ height: `${HOUR_HEIGHT_PX}px` }}>
                   <div className="absolute -top-3 right-2 flex h-6 items-center">
                     {index !== 0 && (
                       <span className="text-xs text-t-quaternary">
@@ -126,7 +126,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                   <div
                     key={hour}
                     className="relative"
-                    style={{ height: "96px" }}
+                    style={{ height: `${HOUR_HEIGHT_PX}px` }}
                   >
                     {index !== 0 && (
                       <div className="pointer-events-none absolute inset-x-0 top-0 border-b"></div>
